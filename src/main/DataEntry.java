@@ -1,13 +1,15 @@
 package main;
 
+import java.time.LocalDate;
+
 public class DataEntry {
 
     private String isoCode;
     private double exchangeValue;
-    private String startDate;
-    private String endDate;
+    private LocalDate startDate;
+    private LocalDate endDate;
 
-    public DataEntry(String isoCode, String startDate, String endDate, double exchangeValue)
+    public DataEntry(String isoCode, LocalDate startDate, LocalDate endDate, double exchangeValue)
     {
         this.isoCode = isoCode;
         this.startDate = startDate;
@@ -15,12 +17,12 @@ public class DataEntry {
         this.exchangeValue = exchangeValue;
     }
 
-    public void setStartDate(String startDate)
+    public void setStartDate(LocalDate startDate)
     {
         this.startDate = startDate;
     }
 
-    public void setEndDate(String endDate)
+    public void setEndDate(LocalDate endDate)
     {
         this.endDate = endDate;
     }
@@ -30,12 +32,12 @@ public class DataEntry {
         return this.isoCode;
     }
 
-    public String getStartDate()
+    public LocalDate getStartDate()
     {
         return this.startDate;
     }
 
-    public String getEndDate()
+    public LocalDate getEndDate()
     {
         return this.endDate;
     }

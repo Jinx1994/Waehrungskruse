@@ -3,8 +3,8 @@ package main;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.InputStreamReader;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.io.File;
 
@@ -95,7 +95,7 @@ public class IataExchangeRateApplication {
 		try
 		{
 			String currencyIsoCode = getUserInputForStringField("W�hrung");
-			Date date = getUserInputForDateField("Datum");
+			LocalDate date = getUserInputForDateField("Datum");
 
 			for(DataEntry dataEntry: dataStructure)
 			{
@@ -119,8 +119,8 @@ public class IataExchangeRateApplication {
 	
 	private void enterIataExchangeRate() throws Exception {
 		String currencyIsoCode = getUserInputForStringField("W�hrung");
-		Date from = getUserInputForDateField("Von");
-		Date to = getUserInputForDateField("Bis");
+		LocalDate from = getUserInputForDateField("Von");
+		LocalDate to = getUserInputForDateField("Bis");
 		Double exchangeRate = getUserInputForDoubleField("Euro-Kurs f�r 1 " + currencyIsoCode);
 		
 		//TODO: Aus den Variablen muss jetzt ein Kurs zusammengesetzt und in die eingelesenen Kurse eingef�gt werden. 
@@ -131,12 +131,12 @@ public class IataExchangeRateApplication {
 		return getUserInput();
 	}
 	
-	private Date getUserInputForDateField(String fieldName) throws Exception {
+	private LocalDate getUserInputForDateField(String fieldName) throws Exception {
 		System.out.print(fieldName + " (tt.mm.jjjj): ");
 		String dateString = getUserInput();
-		
-		DateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy");
-		return dateFormat.parse(dateString);
+
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
+		return LocalDate.parse(dateString, formatter);
 	}
 	
 	private Double getUserInputForDoubleField(String fieldName) throws Exception {
@@ -151,6 +151,7 @@ public class IataExchangeRateApplication {
 		String line = "";
 		String csvSplitBy = ";";
 		Set<String> tempDataEntries = new LinkedHashSet<>();
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
 
 		try
 		{
@@ -161,9 +162,8 @@ public class IataExchangeRateApplication {
 				{
 					String[] exchangeRatesData = line.split(csvSplitBy);
 
-					DateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy");
-					dateFormat.parse(exchangeRatesData[4]);
-					dateFormat.parse(exchangeRatesData[3]);
+					LocalDate.parse(exchangeRatesData[4], formatter);
+					LocalDate.parse(exchangeRatesData[3], formatter);
 
 					String exchangeRatesDataWithNewFormat = "";
 					exchangeRatesData[1] = exchangeRatesData[1].replace(',', '.');
@@ -196,8 +196,8 @@ public class IataExchangeRateApplication {
 			for(String tempDataEntry: tempDataEntries)
 			{
 				String[] tempDataEntryData = tempDataEntry.split(",");
-				DataEntry dataEntry = new DataEntry(tempDataEntryData[1], tempDataEntryData[2],
-						tempDataEntryData[3], Double.parseDouble(tempDataEntryData[0]));
+				DataEntry dataEntry = new DataEntry(tempDataEntryData[1], LocalDate.parse(tempDataEntryData[2], formatter),
+						LocalDate.parse(tempDataEntryData[3], formatter), Double.parseDouble(tempDataEntryData[0]));
 				dataStructure.add(dataEntry);
 			}
 
@@ -212,20 +212,20 @@ public class IataExchangeRateApplication {
 
 	private void printDataEntries(Set<DataEntry> dataEntries)
 	{
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
 		for(DataEntry d: dataEntries)
 		{
-			System.out.println(d.getIsoCode() + " " + d.getExchangeValue() + " " + d.getStartDate() + " " + d.getEndDate());
+			System.out.println(d.getIsoCode() + " " + d.getExchangeValue() + " " + d.getStartDate().format(formatter) + " " + d.getEndDate().format(formatter));
 		}
 	}
 
-	private boolean checkIfInputForDisplayingIataExchangeRatesIsValid(String isoCode, Date date, DataEntry dataEntry)
+	private boolean checkIfInputForDisplayingIataExchangeRatesIsValid(String isoCode, LocalDate date, DataEntry dataEntry)
 	{
 		try
 		{
-			DateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy");
 			return isoCode.equals(dataEntry.getIsoCode()) &&
-					(date.before(dateFormat.parse(dataEntry.getEndDate())) || date.equals(dateFormat.parse(dataEntry.getEndDate())) &&
-							(date.after(dateFormat.parse(dataEntry.getStartDate()))) || date.equals(dateFormat.parse(dataEntry.getStartDate())));
+					(date.isBefore(dataEntry.getEndDate())) || date.isEqual(dataEntry.getEndDate()) &&
+							(date.isAfter(dataEntry.getStartDate())) || date.isEqual(dataEntry.getStartDate());
 		}
 		catch(Exception e)
 		{
