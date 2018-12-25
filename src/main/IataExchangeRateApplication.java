@@ -14,7 +14,6 @@ public class IataExchangeRateApplication {
 
 		List<String> dataStructure = new ArrayList<>();
 		readIataExchangeRates(dataStructure);
-		printDataEntries(dataStructure);
 
 		displayMenu();
 		
@@ -63,6 +62,7 @@ public class IataExchangeRateApplication {
 		System.out.println("W�hlen Sie eine Funktion durch Auswahl der Zifferntaste und Dr�cken von 'Return'");
 		System.out.println("[1] W�hrungskurs anzeigen");
 		System.out.println("[2] Neuen W�hrungskurs eingeben");
+		System.out.println("[3] Liste ausgeben");
 		System.out.println();
 		
 		System.out.println("[0] Beenden");
@@ -83,7 +83,9 @@ public class IataExchangeRateApplication {
 		if(userInput.equals("1")) {
 			displayIataExchangeRate(dataStructure);
 		} else if(userInput.equals("2")) {
-			enterIataExchangeRate();
+			enterIataExchangeRate(dataStructure);
+		} else if(userInput.equals("3")) {
+			printDataEntries(dataStructure);
 		} else {
 			System.out.println("Falsche Eingabe. Versuchen Sie es bitte erneut.");
 		}
@@ -100,10 +102,10 @@ public class IataExchangeRateApplication {
 			for(String dataEntry: dataStructure)
 			{
 				String[] data = dataEntry.split(",");
-				double euroValue = 1/Double.parseDouble(data[0]);
+				double euroValue = 1/Double.parseDouble(data[3]);
 				if(checkIfInputForDisplayingIataExchangeRatesIsValid(currencyIsoCode, date, data))
 				{
-					System.out.println("1 " + data[1] + " entspricht " + euroValue + " Euro");
+					System.out.println("1 " + data[2] + " entspricht " + euroValue + " Euro");
 					return true;
 				}
 			}
@@ -119,13 +121,71 @@ public class IataExchangeRateApplication {
 		}
 	}
 	
-	private void enterIataExchangeRate() throws Exception {
+	private void enterIataExchangeRate(List<String> dataStructure) throws Exception {
 		String currencyIsoCode = getUserInputForStringField("W�hrung");
 		LocalDate from = getUserInputForDateField("Von");
 		LocalDate to = getUserInputForDateField("Bis");
 		Double exchangeRate = getUserInputForDoubleField("Euro-Kurs f�r 1 " + currencyIsoCode);
-		
+		ArrayList<String> dataEntriesToRemove = new ArrayList<>();
+		ArrayList<String> dataEntriesToAdd = new ArrayList<>();
+
+		for(String dataEntry: dataStructure)
+		{
+			String data[] = dataEntry.split(",");
+			if(data[2].equals(currencyIsoCode))
+			{
+				dataEntriesToAdd.add(dataEntry);
+				dataEntriesToRemove.add(dataEntry);
+			}
+		}
+
+		addDataEntryToList(currencyIsoCode, from, to, exchangeRate, dataEntriesToAdd, dataEntriesToRemove);
+
+		Collections.sort(dataEntriesToAdd);
+
+		printDataEntries(dataEntriesToRemove);
+		printDataEntries(dataEntriesToAdd);
+
 		//TODO: Aus den Variablen muss jetzt ein Kurs zusammengesetzt und in die eingelesenen Kurse eingef�gt werden. 
+	}
+
+	private void addDataEntryToList(String isoCodeInput, LocalDate startDateInput, LocalDate endDateInput,
+									Double exchangeRateInput, List<String> dataEntriesToAdd, List<String> dataEntriesToRemove)
+	{
+		for(String dataEntry: dataEntriesToRemove)
+		{
+			String[] data = dataEntry.split(",");
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
+			if(checkIfStartDateAndEndDateAreEqual(isoCodeInput, startDateInput, endDateInput, data))
+			{
+				StringBuilder s = new StringBuilder();
+				s.append(startDateInput.format(formatter)).append(",");
+				s.append(endDateInput.format(formatter)).append(",");
+				s.append(isoCodeInput).append(",");
+				s.append(exchangeRateInput).append(",");
+				dataEntriesToAdd.remove(dataEntry);
+				dataEntriesToAdd.add(s.toString());
+			}
+		}
+	}
+
+	private boolean checkIfStartDateAndEndDateAreEqual(String isoCodeInput, LocalDate startDateInput, LocalDate endDateInput, String[] data)
+	{
+		try
+		{
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
+			LocalDate startDate = LocalDate.parse(data[0], formatter);
+			LocalDate endDate = LocalDate.parse(data[1], formatter);
+			return checkIfIsoCodeIsValid(isoCodeInput, data[2]) &&
+					checkIfStartDateIsBeforeEndDate(startDateInput, endDateInput) &&
+					startDateInput.isEqual(startDate) &&
+					endDateInput.isEqual(endDate);
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+			return false;
+		}
 	}
 	
 	private String getUserInputForStringField(String fieldName) throws Exception {
@@ -176,13 +236,13 @@ public class IataExchangeRateApplication {
 					}
 					else
 					{
-						for(int i = 1; i < exchangeRatesData.length; i++)
-						{
-							exchangeRatesDataWithNewFormat += exchangeRatesData[i] + ",";
-						}
+						StringBuilder s = new StringBuilder();
+						s.append(exchangeRatesData[3]).append(",");
+						s.append(exchangeRatesData[4]).append(",");
+						s.append(exchangeRatesData[2]).append(",");
+						s.append(exchangeRatesData[1]).append(",");
+						tempDataEntries.add(s.toString());
 					}
-
-					tempDataEntries.add(exchangeRatesDataWithNewFormat);
 				}
 				catch(Exception e)
 				{
@@ -216,6 +276,7 @@ public class IataExchangeRateApplication {
 			String[] data = dataEntry.split(",");
 			System.out.println(data[0] + " " + data[1] + " " + data[2] + " " + data[3]);
 		}
+		System.out.println();
 	}
 
 	private boolean checkIfInputForDisplayingIataExchangeRatesIsValid(String isoCodeInput, LocalDate dateInput, String[] data)
@@ -223,9 +284,9 @@ public class IataExchangeRateApplication {
 		try
 		{
 			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
-			LocalDate startDate = LocalDate.parse(data[2], formatter);
-			LocalDate endDate = LocalDate.parse(data[3], formatter);
-			return checkIfIsoCodeIsValid(isoCodeInput, data[1]) &&
+			LocalDate startDate = LocalDate.parse(data[0], formatter);
+			LocalDate endDate = LocalDate.parse(data[1], formatter);
+			return checkIfIsoCodeIsValid(isoCodeInput, data[2]) &&
 					(dateInput.isEqual(startDate) ||
 							dateInput.isEqual(endDate) ||
 							dateInput.isAfter(startDate) &&
