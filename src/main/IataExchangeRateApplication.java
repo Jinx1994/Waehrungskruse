@@ -330,7 +330,6 @@ public class IataExchangeRateApplication {
 		sortEntriesAfterStartDate(dataEntriesToAdd);
 		dataStructure.removeAll(dataEntriesToRemove);
 		dataStructure.addAll(dataEntriesToAdd);
-		Collections.sort(dataStructure);
 	}
 
 	private void sortEntriesAfterStartDate(List<String> dataEntriesToAdd)
