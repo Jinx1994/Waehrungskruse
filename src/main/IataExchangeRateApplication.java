@@ -141,10 +141,9 @@ public class IataExchangeRateApplication {
 
 		addDataEntryToList(currencyIsoCode, from, to, exchangeRate, dataEntriesToAdd, dataEntriesToRemove);
 
-		Collections.sort(dataEntriesToAdd);
-
 		printDataEntries(dataEntriesToRemove);
 		printDataEntries(dataEntriesToAdd);
+		sortEntriesAfterStartDate(dataEntriesToAdd);
 
 		//TODO: Aus den Variablen muss jetzt ein Kurs zusammengesetzt und in die eingelesenen Kurse eingef�gt werden. 
 	}
@@ -152,6 +151,7 @@ public class IataExchangeRateApplication {
 	private void addDataEntryToList(String isoCodeInput, LocalDate startDateInput, LocalDate endDateInput,
 									Double exchangeRateInput, List<String> dataEntriesToAdd, List<String> dataEntriesToRemove)
 	{
+		boolean hasChanged = false;
 		for(String dataEntry: dataEntriesToRemove)
 		{
 			String[] data = dataEntry.split(",");
@@ -166,6 +166,27 @@ public class IataExchangeRateApplication {
 				dataEntriesToAdd.remove(dataEntry);
 				dataEntriesToAdd.add(s.toString());
 			}
+		}
+	}
+
+	private void sortEntriesAfterStartDate(List<String> dataEntriesToAdd)
+	{
+		List<DataEntry> tempList = new ArrayList<>();
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
+		for(String dataEntry: dataEntriesToAdd)
+		{
+			String[] data = dataEntry.split(",");
+			DataEntry d = new DataEntry(LocalDate.parse(data[0], formatter), LocalDate.parse(data[1], formatter), data[2], Double.parseDouble(data[3]));
+			tempList.add(d);
+		}
+
+		tempList.sort(Comparator.comparing(d -> d.getStartDate()));
+		dataEntriesToAdd.clear();
+
+		for(DataEntry d: tempList)
+		{
+			dataEntriesToAdd.add(d.toString());
+			System.out.println(d.toString());
 		}
 	}
 
