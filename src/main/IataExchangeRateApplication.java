@@ -239,7 +239,10 @@ public class IataExchangeRateApplication {
 				{
 					dataEntriesToAdd.add(s.toString());
 				}
-				dataEntriesToAdd.remove(dataEntry);
+				if(checkIfDatesIntersectWithEachOther(startDateInput, endDateInput, data))
+				{
+					dataEntriesToAdd.remove(dataEntry);
+				}
 			}
 			else if(checkIfStartDateAndEndDateAreAfter(isoCodeInput, startDateInput, endDateInput, data))
 			{
@@ -258,7 +261,10 @@ public class IataExchangeRateApplication {
 				{
 					dataEntriesToAdd.add(s.toString());
 				}
-				dataEntriesToAdd.remove(dataEntry);
+				if(checkIfDatesIntersectWithEachOther(startDateInput, endDateInput, data))
+				{
+					dataEntriesToAdd.remove(dataEntry);
+				}
 			}
 			else if(checkIfStartDateIsAfterAndEndDateIsBefore(isoCodeInput, startDateInput, endDateInput, data))
 			{
@@ -478,6 +484,23 @@ public class IataExchangeRateApplication {
 					checkIfStartDateIsBeforeOrEqualEndDate(startDateInput, endDateInput) &&
 					startDateInput.isBefore(startDate) &&
 					endDateInput.isAfter(endDate);
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+			return false;
+		}
+	}
+
+	private boolean checkIfDatesIntersectWithEachOther(LocalDate startDateInput, LocalDate endDateInput, String[] data)
+	{
+		try
+		{
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
+			LocalDate startDate = LocalDate.parse(data[0], formatter);
+			LocalDate endDate = LocalDate.parse(data[1], formatter);
+			return !startDateInput.isAfter(endDate) &&
+					!endDateInput.isBefore(startDate);
 		}
 		catch(Exception e)
 		{
