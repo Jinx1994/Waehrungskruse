@@ -71,7 +71,7 @@ public class IataExchangeRateApplication {
 	private String getUserInput() throws Exception {
 		BufferedReader consoleInput = new BufferedReader(new InputStreamReader(System.in));
 		
-		return consoleInput.readLine();
+		return consoleInput.readLine().trim();
 	}
 	
 	//Returns true when the user wants to exit the application 
@@ -101,18 +101,18 @@ public class IataExchangeRateApplication {
 			{
 				if(checkIfInputForDisplayingIataExchangeRatesIsValid(currencyIsoCode, date, dataEntry))
 				{
-					System.out.println("1 Euro entspricht " + dataEntry.getExchangeValue() + " " + dataEntry.getIsoCode());
+					System.out.println("1 " + dataEntry.getIsoCode() + " entspricht " + dataEntry.getEuroValue() + " Euro");
 					return true;
 				}
 			}
 
-			System.out.println("Die eingegebene Währung oder das eingegebene Datum ist nicht vorhanden. Bitte versuchen Sie es erneut.");
+			System.out.println("Eingaben ungültig. Bitte versuchen Sie es erneut.");
 			return false;
 			//TODO: Mit currencyIsoCode und date sollte hier der Kurs ermittelt und ausgegeben werden.
 		}
 		catch(Exception e)
 		{
-			System.out.println("Eingaben ungültig. Bitte versuchen Sie es nochmal!");
+			System.out.println("Eingaben ungültig. Bitte versuchen Sie es erneut.");
 			return false;
 		}
 	}
@@ -219,18 +219,30 @@ public class IataExchangeRateApplication {
 		}
 	}
 
-	private boolean checkIfInputForDisplayingIataExchangeRatesIsValid(String isoCode, LocalDate date, DataEntry dataEntry)
+	private boolean checkIfInputForDisplayingIataExchangeRatesIsValid(String isoCodeInput, LocalDate dateInput, DataEntry dataEntry)
 	{
 		try
 		{
-			return isoCode.equals(dataEntry.getIsoCode()) &&
-					(date.isBefore(dataEntry.getEndDate())) || date.isEqual(dataEntry.getEndDate()) &&
-							(date.isAfter(dataEntry.getStartDate())) || date.isEqual(dataEntry.getStartDate());
+			return checkIfIsoCodeIsValid(isoCodeInput, dataEntry) &&
+					(dateInput.isEqual(dataEntry.getStartDate()) ||
+							dateInput.isEqual(dataEntry.getEndDate()) ||
+							dateInput.isAfter(dataEntry.getStartDate()) &&
+							dateInput.isBefore(dataEntry.getEndDate()));
 		}
 		catch(Exception e)
 		{
 			e.printStackTrace();
 			return false;
 		}
+	}
+
+	private boolean checkIfIsoCodeIsValid(String isoCodeInput, DataEntry dataEntry)
+	{
+		return isoCodeInput.equals(dataEntry.getIsoCode());
+	}
+
+	private boolean checkIfStartDateIsBeforeEndDate(LocalDate startDateInput, LocalDate endDateInput)
+	{
+		return startDateInput.isBefore(endDateInput);
 	}
 }

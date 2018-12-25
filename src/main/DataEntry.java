@@ -46,4 +46,6 @@ public class DataEntry {
     {
         return this.exchangeValue;
     }
+
+    public double getEuroValue() {return 1/this.exchangeValue; }
 }
