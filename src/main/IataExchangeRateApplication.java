@@ -12,7 +12,7 @@ public class IataExchangeRateApplication {
 	
 	public void run() throws Exception {
 
-		Set<DataEntry> dataStructure = new LinkedHashSet<>();
+		List<String> dataStructure = new ArrayList<>();
 		readIataExchangeRates(dataStructure);
 		printDataEntries(dataStructure);
 
@@ -29,7 +29,7 @@ public class IataExchangeRateApplication {
 		System.out.println("Auf Wiedersehen!");
 	}
 	
-	private boolean readIataExchangeRates(Set<DataEntry> dataStructure) {
+	private boolean readIataExchangeRates(List<String> dataStructure) {
 		//TODO: Hier muss das Einlesen der IATA-W�hrungskurse aus der Datei geschehen.
 		try
 		{
@@ -75,7 +75,7 @@ public class IataExchangeRateApplication {
 	}
 	
 	//Returns true when the user wants to exit the application 
-	private boolean processUserInputAndCheckForExitRequest(String userInput, Set<DataEntry> dataStructure) throws Exception {
+	private boolean processUserInputAndCheckForExitRequest(String userInput, List<String> dataStructure) throws Exception {
 		if(userInput.equals("0")) {
 			return true;
 		}
@@ -91,17 +91,19 @@ public class IataExchangeRateApplication {
 		return false;
 	}
 	
-	private boolean displayIataExchangeRate(Set<DataEntry> dataStructure) throws Exception {
+	private boolean displayIataExchangeRate(List<String> dataStructure) throws Exception {
 		try
 		{
 			String currencyIsoCode = getUserInputForStringField("W�hrung");
 			LocalDate date = getUserInputForDateField("Datum");
 
-			for(DataEntry dataEntry: dataStructure)
+			for(String dataEntry: dataStructure)
 			{
-				if(checkIfInputForDisplayingIataExchangeRatesIsValid(currencyIsoCode, date, dataEntry))
+				String[] data = dataEntry.split(",");
+				double euroValue = 1/Double.parseDouble(data[0]);
+				if(checkIfInputForDisplayingIataExchangeRatesIsValid(currencyIsoCode, date, data))
 				{
-					System.out.println("1 " + dataEntry.getIsoCode() + " entspricht " + dataEntry.getEuroValue() + " Euro");
+					System.out.println("1 " + data[1] + " entspricht " + euroValue + " Euro");
 					return true;
 				}
 			}
@@ -112,7 +114,7 @@ public class IataExchangeRateApplication {
 		}
 		catch(Exception e)
 		{
-			System.out.println("Eingaben ungültig. Bitte versuchen Sie es erneut.");
+			e.printStackTrace();
 			return false;
 		}
 	}
@@ -144,7 +146,7 @@ public class IataExchangeRateApplication {
 		return Double.valueOf(doubleString);
 	}
 
-	private boolean writeIataExchangeRatesInDataStructure(File file, Set<DataEntry> dataStructure)
+	private boolean writeIataExchangeRatesInDataStructure(File file, List<String> dataStructure)
 	{
 		String exchangeRatesFile = file.getAbsolutePath();
 		BufferedReader bufferedReader = null;
@@ -195,10 +197,7 @@ public class IataExchangeRateApplication {
 
 			for(String tempDataEntry: tempDataEntries)
 			{
-				String[] tempDataEntryData = tempDataEntry.split(",");
-				DataEntry dataEntry = new DataEntry(tempDataEntryData[1], LocalDate.parse(tempDataEntryData[2], formatter),
-						LocalDate.parse(tempDataEntryData[3], formatter), Double.parseDouble(tempDataEntryData[0]));
-				dataStructure.add(dataEntry);
+				dataStructure.add(tempDataEntry);
 			}
 
 			return true;
@@ -210,24 +209,27 @@ public class IataExchangeRateApplication {
 		}
 	}
 
-	private void printDataEntries(Set<DataEntry> dataEntries)
+	private void printDataEntries(List<String> dataEntries)
 	{
-		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
-		for(DataEntry d: dataEntries)
+		for(String dataEntry: dataEntries)
 		{
-			System.out.println(d.getIsoCode() + " " + d.getExchangeValue() + " " + d.getStartDate().format(formatter) + " " + d.getEndDate().format(formatter));
+			String[] data = dataEntry.split(",");
+			System.out.println(data[0] + " " + data[1] + " " + data[2] + " " + data[3]);
 		}
 	}
 
-	private boolean checkIfInputForDisplayingIataExchangeRatesIsValid(String isoCodeInput, LocalDate dateInput, DataEntry dataEntry)
+	private boolean checkIfInputForDisplayingIataExchangeRatesIsValid(String isoCodeInput, LocalDate dateInput, String[] data)
 	{
 		try
 		{
-			return checkIfIsoCodeIsValid(isoCodeInput, dataEntry) &&
-					(dateInput.isEqual(dataEntry.getStartDate()) ||
-							dateInput.isEqual(dataEntry.getEndDate()) ||
-							dateInput.isAfter(dataEntry.getStartDate()) &&
-							dateInput.isBefore(dataEntry.getEndDate()));
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
+			LocalDate startDate = LocalDate.parse(data[2], formatter);
+			LocalDate endDate = LocalDate.parse(data[3], formatter);
+			return checkIfIsoCodeIsValid(isoCodeInput, data[1]) &&
+					(dateInput.isEqual(startDate) ||
+							dateInput.isEqual(endDate) ||
+							dateInput.isAfter(startDate) &&
+									dateInput.isBefore(endDate));
 		}
 		catch(Exception e)
 		{
@@ -236,9 +238,9 @@ public class IataExchangeRateApplication {
 		}
 	}
 
-	private boolean checkIfIsoCodeIsValid(String isoCodeInput, DataEntry dataEntry)
+	private boolean checkIfIsoCodeIsValid(String isoCodeInput, String data)
 	{
-		return isoCodeInput.equals(dataEntry.getIsoCode());
+		return isoCodeInput.equals(data);
 	}
 
 	private boolean checkIfStartDateIsBeforeEndDate(LocalDate startDateInput, LocalDate endDateInput)
