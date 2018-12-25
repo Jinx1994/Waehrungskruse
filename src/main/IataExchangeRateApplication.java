@@ -85,6 +85,7 @@ public class IataExchangeRateApplication {
 		} else if(userInput.equals("2")) {
 			enterIataExchangeRate(dataStructure);
 		} else if(userInput.equals("3")) {
+			sortDataStructureAfterIso(dataStructure);
 			printDataEntries(dataStructure);
 		} else {
 			System.out.println("Falsche Eingabe. Versuchen Sie es bitte erneut.");
@@ -318,6 +319,26 @@ public class IataExchangeRateApplication {
 		{
 			dataEntriesToAdd.add(d.toString());
 			System.out.println(d.toString());
+		}
+	}
+
+	private void sortDataStructureAfterIso(List<String> dataStructure)
+	{
+		List<DataEntry> tempList = new ArrayList<>();
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
+		for(String dataEntry: dataStructure)
+		{
+			String[] data = dataEntry.split(",");
+			DataEntry d = new DataEntry(LocalDate.parse(data[0], formatter), LocalDate.parse(data[1], formatter), data[2], Double.parseDouble(data[3]));
+			tempList.add(d);
+		}
+
+		tempList.sort(Comparator.comparing(d -> d.getIsoCode()));
+		dataStructure.clear();
+
+		for(DataEntry d: tempList)
+		{
+			dataStructure.add(d.toString());
 		}
 	}
 
