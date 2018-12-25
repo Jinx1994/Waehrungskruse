@@ -161,6 +161,11 @@ public class IataExchangeRateApplication {
 		{
 			String[] data = dataEntry.split(",");
 
+			if(!checkIfDatesIntersectWithEachOther(startDateInput, endDateInput, data))
+			{
+				continue;
+			}
+
 			if(checkIfStartDateAndEndDateAreEqual(isoCodeInput, startDateInput, endDateInput, data))
 			{
 				dataEntriesToAdd.remove(dataEntry);
@@ -190,9 +195,9 @@ public class IataExchangeRateApplication {
 				s1.append(data[1]).append(",");
 				s1.append(data[2]).append(",");
 				s1.append(data[3]).append(",");
-				if(!dataEntriesToAdd.contains(s.toString()))
+				if(!dataEntriesToAdd.contains(s1.toString()))
 				{
-					dataEntriesToAdd.add(s.toString());
+					dataEntriesToAdd.add(s1.toString());
 				}
 				dataEntriesToAdd.remove(dataEntry);
 			}
@@ -209,9 +214,9 @@ public class IataExchangeRateApplication {
 				s1.append(newEndDate.format(formatter)).append(",");
 				s1.append(data[2]).append(",");
 				s1.append(data[3]).append(",");
-				if(!dataEntriesToAdd.contains(s.toString()))
+				if(!dataEntriesToAdd.contains(s1.toString()))
 				{
-					dataEntriesToAdd.add(s.toString());
+					dataEntriesToAdd.add(s1.toString());
 				}
 				dataEntriesToAdd.remove(dataEntry);
 			}
@@ -236,9 +241,9 @@ public class IataExchangeRateApplication {
 				s1.append(data[1]).append(",");
 				s1.append(data[2]).append(",");
 				s1.append(data[3]).append(",");
-				if(!dataEntriesToAdd.contains(s.toString()))
+				if(!dataEntriesToAdd.contains(s1.toString()))
 				{
-					dataEntriesToAdd.add(s.toString());
+					dataEntriesToAdd.add(s1.toString());
 				}
 				if(checkIfDatesIntersectWithEachOther(startDateInput, endDateInput, data))
 				{
@@ -258,9 +263,9 @@ public class IataExchangeRateApplication {
 				s1.append(newEndDate.format(formatter)).append(",");
 				s1.append(data[2]).append(",");
 				s1.append(data[3]).append(",");
-				if(!dataEntriesToAdd.contains(s.toString()))
+				if(!dataEntriesToAdd.contains(s1.toString()))
 				{
-					dataEntriesToAdd.add(s.toString());
+					dataEntriesToAdd.add(s1.toString());
 				}
 				if(checkIfDatesIntersectWithEachOther(startDateInput, endDateInput, data))
 				{
@@ -280,9 +285,9 @@ public class IataExchangeRateApplication {
 				s1.append(newEndDate.format(formatter)).append(",");
 				s1.append(data[2]).append(",");
 				s1.append(data[3]).append(",");
-				if(!dataEntriesToAdd.contains(s.toString()))
+				if(!dataEntriesToAdd.contains(s1.toString()))
 				{
-					dataEntriesToAdd.add(s.toString());
+					dataEntriesToAdd.add(s1.toString());
 				}
 				dataEntriesToAdd.remove(dataEntry);
 			}
