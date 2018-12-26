@@ -132,9 +132,9 @@ public class IataExchangeRateApplication {
 			LocalDate to = getUserInputForDateField("Bis");
 			Double exchangeRate = getUserInputForDoubleField("Euro-Kurs f�r 1 " + currencyIsoCode);
 
-			boolean wasSuccessfull = addDataEntryToList(currencyIsoCode, from, to, exchangeRate, dataStructure);
+			boolean wasSuccessful = addDataEntryToList(currencyIsoCode, from, to, exchangeRate, dataStructure);
 
-			if(wasSuccessfull)
+			if(wasSuccessful)
 			{
 				return true;
 			}
@@ -388,7 +388,7 @@ public class IataExchangeRateApplication {
 		}
 	}
 
-	private boolean checkIfStartDateAndEndDateAreEqual(String isoCodeInput, LocalDate startDateInput, LocalDate endDateInput, String[] data)
+	public boolean checkIfStartDateAndEndDateAreEqual(String isoCodeInput, LocalDate startDateInput, LocalDate endDateInput, String[] data)
 	{
 		try
 		{
@@ -407,7 +407,7 @@ public class IataExchangeRateApplication {
 		}
 	}
 
-	private boolean checkIfStartDateIsEqualAndEndDateIsAfter(String isoCodeInput, LocalDate startDateInput, LocalDate endDateInput, String[] data)
+	public boolean checkIfStartDateIsEqualAndEndDateIsAfter(String isoCodeInput, LocalDate startDateInput, LocalDate endDateInput, String[] data)
 	{
 		try
 		{
@@ -426,7 +426,7 @@ public class IataExchangeRateApplication {
 		}
 	}
 
-	private boolean checkIfStartDateIsEqualAndEndDateIsBefore(String isoCodeInput, LocalDate startDateInput, LocalDate endDateInput, String[] data)
+	public boolean checkIfStartDateIsEqualAndEndDateIsBefore(String isoCodeInput, LocalDate startDateInput, LocalDate endDateInput, String[] data)
 	{
 		try
 		{
@@ -445,7 +445,7 @@ public class IataExchangeRateApplication {
 		}
 	}
 
-	private boolean checkIfStartDateIsAfterAndEndDateIsEqual(String isoCodeInput, LocalDate startDateInput, LocalDate endDateInput, String[] data)
+	public boolean checkIfStartDateIsAfterAndEndDateIsEqual(String isoCodeInput, LocalDate startDateInput, LocalDate endDateInput, String[] data)
 	{
 		try
 		{
@@ -464,7 +464,7 @@ public class IataExchangeRateApplication {
 		}
 	}
 
-	private boolean checkIfStartDateIsBeforeAndEndDateIsEqual(String isoCodeInput, LocalDate startDateInput, LocalDate endDateInput, String[] data)
+	public boolean checkIfStartDateIsBeforeAndEndDateIsEqual(String isoCodeInput, LocalDate startDateInput, LocalDate endDateInput, String[] data)
 	{
 		try
 		{
@@ -483,7 +483,7 @@ public class IataExchangeRateApplication {
 		}
 	}
 
-	private boolean checkIfStartDateAndEndDateAreBefore(String isoCodeInput, LocalDate startDateInput, LocalDate endDateInput, String[] data)
+	public boolean checkIfStartDateAndEndDateAreBefore(String isoCodeInput, LocalDate startDateInput, LocalDate endDateInput, String[] data)
 	{
 		try
 		{
@@ -502,7 +502,7 @@ public class IataExchangeRateApplication {
 		}
 	}
 
-	private boolean checkIfStartDateAndEndDateAreAfter(String isoCodeInput, LocalDate startDateInput, LocalDate endDateInput, String[] data)
+	public boolean checkIfStartDateAndEndDateAreAfter(String isoCodeInput, LocalDate startDateInput, LocalDate endDateInput, String[] data)
 	{
 		try
 		{
@@ -521,7 +521,7 @@ public class IataExchangeRateApplication {
 		}
 	}
 
-	private boolean checkIfStartDateIsAfterAndEndDateIsBefore(String isoCodeInput, LocalDate startDateInput, LocalDate endDateInput, String[] data)
+	public boolean checkIfStartDateIsAfterAndEndDateIsBefore(String isoCodeInput, LocalDate startDateInput, LocalDate endDateInput, String[] data)
 	{
 		try
 		{
@@ -540,7 +540,7 @@ public class IataExchangeRateApplication {
 		}
 	}
 
-	private boolean checkIfStartDateIsBeforeAndEndDateIsAfter(String isoCodeInput, LocalDate startDateInput, LocalDate endDateInput, String[] data)
+	public boolean checkIfStartDateIsBeforeAndEndDateIsAfter(String isoCodeInput, LocalDate startDateInput, LocalDate endDateInput, String[] data)
 	{
 		try
 		{
@@ -559,7 +559,7 @@ public class IataExchangeRateApplication {
 		}
 	}
 
-	private boolean checkIfDatesIntersectWithEachOther(LocalDate startDateInput, LocalDate endDateInput, String[] data)
+	public boolean checkIfDatesIntersectWithEachOther(LocalDate startDateInput, LocalDate endDateInput, String[] data)
 	{
 		try
 		{
@@ -667,7 +667,7 @@ public class IataExchangeRateApplication {
 		System.out.println();
 	}
 
-	private boolean checkIfInputForDisplayingIataExchangeRatesIsValid(String isoCodeInput, LocalDate dateInput, String[] data)
+	public boolean checkIfInputForDisplayingIataExchangeRatesIsValid(String isoCodeInput, LocalDate dateInput, String[] data)
 	{
 		try
 		{
@@ -687,12 +687,12 @@ public class IataExchangeRateApplication {
 		}
 	}
 
-	private boolean checkIfIsoCodeIsValid(String isoCodeInput, String data)
+	public boolean checkIfIsoCodeIsValid(String isoCodeInput, String data)
 	{
 		return isoCodeInput.equals(data);
 	}
 
-	private boolean checkIfStartDateIsBeforeOrEqualEndDate(LocalDate startDateInput, LocalDate endDateInput)
+	public boolean checkIfStartDateIsBeforeOrEqualEndDate(LocalDate startDateInput, LocalDate endDateInput)
 	{
 		return startDateInput.isBefore(endDateInput) ||
 				startDateInput.isEqual((endDateInput));
