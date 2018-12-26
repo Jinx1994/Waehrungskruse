@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class IataExchangeRateApplicationTest {
@@ -20,7 +21,7 @@ public class IataExchangeRateApplicationTest {
         String endDateInput = "09.01.2011";
         String isoInput = "USD";
         String data[] = dataEntry.split(",");
-        assertTrue(app.checkIfStartDateAndEndDateAreEqual(isoInput, LocalDate.parse(startDateInput, formatter), LocalDate.parse(endDateInput, formatter), data),
+        assertTrue(app.checkIfStartDateAndEndDateAreEqual(LocalDate.parse(startDateInput, formatter), LocalDate.parse(endDateInput, formatter), isoInput, data),
                 "Test successful!");
     }
 
@@ -33,7 +34,7 @@ public class IataExchangeRateApplicationTest {
         String endDateInput = "10.01.2011";
         String isoInput = "USD";
         String data[] = dataEntry.split(",");
-        assertTrue(app.checkIfStartDateIsEqualAndEndDateIsAfter(isoInput, LocalDate.parse(startDateInput, formatter), LocalDate.parse(endDateInput, formatter), data),
+        assertTrue(app.checkIfStartDateIsEqualAndEndDateIsAfter(LocalDate.parse(startDateInput, formatter), LocalDate.parse(endDateInput, formatter), isoInput, data),
                 "Test successful!");
     }
 
@@ -46,7 +47,7 @@ public class IataExchangeRateApplicationTest {
         String endDateInput = "08.01.2011";
         String isoInput = "USD";
         String data[] = dataEntry.split(",");
-        assertTrue(app.checkIfStartDateIsEqualAndEndDateIsBefore(isoInput, LocalDate.parse(startDateInput, formatter), LocalDate.parse(endDateInput, formatter), data),
+        assertTrue(app.checkIfStartDateIsEqualAndEndDateIsBefore(LocalDate.parse(startDateInput, formatter), LocalDate.parse(endDateInput, formatter), isoInput, data),
                 "Test successful!");
     }
 
@@ -59,7 +60,7 @@ public class IataExchangeRateApplicationTest {
         String endDateInput = "09.01.2011";
         String isoInput = "USD";
         String data[] = dataEntry.split(",");
-        assertTrue(app.checkIfStartDateIsAfterAndEndDateIsEqual(isoInput, LocalDate.parse(startDateInput, formatter), LocalDate.parse(endDateInput, formatter), data),
+        assertTrue(app.checkIfStartDateIsAfterAndEndDateIsEqual(LocalDate.parse(startDateInput, formatter), LocalDate.parse(endDateInput, formatter), isoInput, data),
                 "Test successful!");
     }
 
@@ -72,7 +73,7 @@ public class IataExchangeRateApplicationTest {
         String endDateInput = "09.01.2011";
         String isoInput = "USD";
         String data[] = dataEntry.split(",");
-        assertTrue(app.checkIfStartDateIsBeforeAndEndDateIsEqual(isoInput, LocalDate.parse(startDateInput, formatter), LocalDate.parse(endDateInput, formatter), data),
+        assertTrue(app.checkIfStartDateIsBeforeAndEndDateIsEqual(LocalDate.parse(startDateInput, formatter), LocalDate.parse(endDateInput, formatter), isoInput, data),
                 "Test successful!");
     }
 
@@ -85,7 +86,7 @@ public class IataExchangeRateApplicationTest {
         String endDateInput = "08.01.2011";
         String isoInput = "USD";
         String data[] = dataEntry.split(",");
-        assertTrue(app.checkIfStartDateAndEndDateAreBefore(isoInput, LocalDate.parse(startDateInput, formatter), LocalDate.parse(endDateInput, formatter), data),
+        assertTrue(app.checkIfStartDateAndEndDateAreBefore(LocalDate.parse(startDateInput, formatter), LocalDate.parse(endDateInput, formatter), isoInput, data),
                 "Test successful!");
     }
 
@@ -98,7 +99,7 @@ public class IataExchangeRateApplicationTest {
         String endDateInput = "10.01.2011";
         String isoInput = "USD";
         String data[] = dataEntry.split(",");
-        assertTrue(app.checkIfStartDateAndEndDateAreAfter(isoInput, LocalDate.parse(startDateInput, formatter), LocalDate.parse(endDateInput, formatter), data),
+        assertTrue(app.checkIfStartDateAndEndDateAreAfter(LocalDate.parse(startDateInput, formatter), LocalDate.parse(endDateInput, formatter), isoInput, data),
                 "Test successful!");
     }
 
@@ -111,7 +112,7 @@ public class IataExchangeRateApplicationTest {
         String endDateInput = "08.01.2011";
         String isoInput = "USD";
         String data[] = dataEntry.split(",");
-        assertTrue(app.checkIfStartDateIsAfterAndEndDateIsBefore(isoInput, LocalDate.parse(startDateInput, formatter), LocalDate.parse(endDateInput, formatter), data),
+        assertTrue(app.checkIfStartDateIsAfterAndEndDateIsBefore(LocalDate.parse(startDateInput, formatter), LocalDate.parse(endDateInput, formatter), isoInput, data),
                 "Test successful!");
     }
 
@@ -124,7 +125,7 @@ public class IataExchangeRateApplicationTest {
         String endDateInput = "10.01.2011";
         String isoInput = "USD";
         String data[] = dataEntry.split(",");
-        assertTrue(app.checkIfStartDateIsBeforeAndEndDateIsAfter(isoInput, LocalDate.parse(startDateInput, formatter), LocalDate.parse(endDateInput, formatter), data),
+        assertTrue(app.checkIfStartDateIsBeforeAndEndDateIsAfter(LocalDate.parse(startDateInput, formatter), LocalDate.parse(endDateInput, formatter), isoInput, data),
                 "Test successful!");
     }
 
@@ -148,7 +149,7 @@ public class IataExchangeRateApplicationTest {
         String dateInput = "28.12.2010";
         String isoInput = "USD";
         String data[] = dataEntry.split(",");
-        assertTrue(app.checkIfInputForDisplayingIataExchangeRatesIsValid(isoInput, LocalDate.parse(dateInput, formatter), data),
+        assertTrue(app.checkIfInputForDisplayingIataExchangeRatesIsValid(LocalDate.parse(dateInput, formatter), isoInput, data),
                 "Test successful!");
     }
 
@@ -170,5 +171,20 @@ public class IataExchangeRateApplicationTest {
         String endDateInput = "29.12.2010";
         assertTrue(app.checkIfStartDateIsBeforeOrEqualEndDate(LocalDate.parse(startDateInput, formatter), LocalDate.parse(endDateInput, formatter)),
                 "Test successful!");
+    }
+
+    @Test
+    public void checkWhetherCreatedDataEntryIsEqualsTestEntry()
+    {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
+        String dataEntry = "10.12.2010,09.01.2011,USD,1.3353,";
+        String startDateInput = "10.12.2010";
+        String endDateInput = "09.01.2011";
+        String isoCodeInput = "USD";
+        String exchangeValueInput = "1.3353";
+        String data[] = dataEntry.split(",");
+        assertEquals(app.createDataEntry(LocalDate.parse(startDateInput, formatter), LocalDate.parse(endDateInput, formatter), isoCodeInput,
+                Double.parseDouble(exchangeValueInput), formatter),
+                dataEntry);
     }
 }

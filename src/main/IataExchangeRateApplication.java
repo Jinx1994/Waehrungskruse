@@ -104,7 +104,7 @@ public class IataExchangeRateApplication {
 			{
 				String[] data = dataEntry.split(",");
 				double euroValue = 1/Double.parseDouble(data[3]);
-				if(checkIfInputForDisplayingIataExchangeRatesIsValid(currencyIsoCode, date, data))
+				if(checkIfInputForDisplayingIataExchangeRatesIsValid(date, currencyIsoCode, data))
 				{
 					System.out.println("1 " + data[2] + " entspricht " + euroValue + " Euro");
 					return true;
@@ -132,9 +132,9 @@ public class IataExchangeRateApplication {
 			LocalDate to = getUserInputForDateField("Bis");
 			Double exchangeRate = getUserInputForDoubleField("Euro-Kurs f�r 1 " + currencyIsoCode);
 
-			boolean wasSuccessful = addDataEntryToList(currencyIsoCode, from, to, exchangeRate, dataStructure);
+			boolean insertWasSuccessful = insertDataEntryToList(from, to, currencyIsoCode, exchangeRate, dataStructure);
 
-			if(wasSuccessful)
+			if(insertWasSuccessful)
 			{
 				return true;
 			}
@@ -154,13 +154,24 @@ public class IataExchangeRateApplication {
 		}
 	}
 
-	private boolean addDataEntryToList(String isoCodeInput, LocalDate startDateInput, LocalDate endDateInput,
+	public String createDataEntry(LocalDate startDateInput, LocalDate endDateInput, String isoCodeInput, Double exchangeRateInput, DateTimeFormatter formatter)
+	{
+		StringBuilder dataEntry = new StringBuilder();
+		dataEntry.append(startDateInput.format(formatter)).append(",");
+		dataEntry.append(endDateInput.format(formatter)).append(",");
+		dataEntry.append(isoCodeInput).append(",");
+		dataEntry.append(exchangeRateInput).append(",");
+		return dataEntry.toString();
+	}
+
+	private boolean insertDataEntryToList(LocalDate startDateInput, LocalDate endDateInput, String isoCodeInput,
 									Double exchangeRateInput, List<String> dataStructure)
 	{
 		try
 		{
 			ArrayList<String> dataEntriesToRemove = new ArrayList<>();
 			ArrayList<String> dataEntriesToAdd = new ArrayList<>();
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
 
 			for(String dataEntry: dataStructure)
 			{
@@ -180,12 +191,7 @@ public class IataExchangeRateApplication {
 
 			printDataEntries((dataEntriesToRemove));
 
-			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
-			StringBuilder s = new StringBuilder();
-			s.append(startDateInput.format(formatter)).append(",");
-			s.append(endDateInput.format(formatter)).append(",");
-			s.append(isoCodeInput).append(",");
-			s.append(exchangeRateInput).append(",");
+			String newDataEntry = createDataEntry(startDateInput, endDateInput, isoCodeInput, exchangeRateInput, formatter);
 
 			for(String dataEntry: dataEntriesToRemove)
 			{
@@ -193,144 +199,124 @@ public class IataExchangeRateApplication {
 
 				if(!checkIfDatesIntersectWithEachOther(startDateInput, endDateInput, data))
 				{
-					if(!dataEntriesToAdd.contains(s.toString()))
+					if(!dataEntriesToAdd.contains(newDataEntry))
 					{
-						dataEntriesToAdd.add(s.toString());
+						dataEntriesToAdd.add(newDataEntry);
 					}
 					continue;
 				}
 
-				if(checkIfStartDateAndEndDateAreEqual(isoCodeInput, startDateInput, endDateInput, data))
+				if(checkIfStartDateAndEndDateAreEqual(startDateInput, endDateInput, isoCodeInput, data))
 				{
 					dataEntriesToAdd.remove(dataEntry);
-					if(!dataEntriesToAdd.contains(s.toString()))
+					if(!dataEntriesToAdd.contains(newDataEntry))
 					{
-						dataEntriesToAdd.add(s.toString());
+						dataEntriesToAdd.add(newDataEntry);
 					}
 				}
-				else if(checkIfStartDateIsEqualAndEndDateIsAfter(isoCodeInput, startDateInput, endDateInput, data))
+				else if(checkIfStartDateIsEqualAndEndDateIsAfter(startDateInput, endDateInput, isoCodeInput, data))
 				{
 					dataEntriesToAdd.remove(dataEntry);
-					if(!dataEntriesToAdd.contains(s.toString()))
+					if(!dataEntriesToAdd.contains(newDataEntry))
 					{
-						dataEntriesToAdd.add(s.toString());
+						dataEntriesToAdd.add(newDataEntry);
 					}
 				}
-				else if(checkIfStartDateIsEqualAndEndDateIsBefore(isoCodeInput, startDateInput, endDateInput, data))
+				else if(checkIfStartDateIsEqualAndEndDateIsBefore(startDateInput, endDateInput, isoCodeInput, data))
 				{
-					if(!dataEntriesToAdd.contains(s.toString()))
+					if(!dataEntriesToAdd.contains(newDataEntry))
 					{
-						dataEntriesToAdd.add(s.toString());
+						dataEntriesToAdd.add(newDataEntry);
 					}
 
 					LocalDate newStartDate = endDateInput.plusDays(1);
-					StringBuilder s1 = new StringBuilder();
-					s1.append(newStartDate.format(formatter)).append(",");
-					s1.append(data[1]).append(",");
-					s1.append(data[2]).append(",");
-					s1.append(data[3]).append(",");
-					if(!dataEntriesToAdd.contains(s1.toString()))
+					String modifiedDataEntry = createDataEntry(newStartDate, LocalDate.parse(data[1], formatter), data[2], Double.parseDouble(data[3]), formatter);
+					if(!dataEntriesToAdd.contains(modifiedDataEntry))
 					{
-						dataEntriesToAdd.add(s1.toString());
+						dataEntriesToAdd.add(modifiedDataEntry);
 					}
 					dataEntriesToAdd.remove(dataEntry);
 				}
-				else if(checkIfStartDateIsAfterAndEndDateIsEqual(isoCodeInput, startDateInput, endDateInput, data))
+				else if(checkIfStartDateIsAfterAndEndDateIsEqual(startDateInput, endDateInput, isoCodeInput, data))
 				{
-					if(!dataEntriesToAdd.contains(s.toString()))
+					if(!dataEntriesToAdd.contains(newDataEntry))
 					{
-						dataEntriesToAdd.add(s.toString());
+						dataEntriesToAdd.add(newDataEntry);
 					}
 
 					LocalDate newEndDate = startDateInput.minusDays(1);
-					StringBuilder s1 = new StringBuilder();
-					s1.append(data[0]).append(",");
-					s1.append(newEndDate.format(formatter)).append(",");
-					s1.append(data[2]).append(",");
-					s1.append(data[3]).append(",");
-					if(!dataEntriesToAdd.contains(s1.toString()))
+					String modifiedDataEntry = createDataEntry(LocalDate.parse(data[0], formatter), newEndDate, data[2], Double.parseDouble(data[3]), formatter);
+					if(!dataEntriesToAdd.contains(modifiedDataEntry))
 					{
-						dataEntriesToAdd.add(s1.toString());
+						dataEntriesToAdd.add(modifiedDataEntry);
 					}
 					dataEntriesToAdd.remove(dataEntry);
 				}
-				else if(checkIfStartDateIsBeforeAndEndDateIsEqual(isoCodeInput, startDateInput, endDateInput, data))
+				else if(checkIfStartDateIsBeforeAndEndDateIsEqual(startDateInput, endDateInput, isoCodeInput, data))
 				{
 					dataEntriesToAdd.remove(dataEntry);
-					if(!dataEntriesToAdd.contains(s.toString()))
+					if(!dataEntriesToAdd.contains(newDataEntry))
 					{
-						dataEntriesToAdd.add(s.toString());
+						dataEntriesToAdd.add(newDataEntry);
 					}
 				}
-				else if(checkIfStartDateAndEndDateAreBefore(isoCodeInput, startDateInput, endDateInput, data))
+				else if(checkIfStartDateAndEndDateAreBefore(startDateInput, endDateInput, isoCodeInput, data))
 				{
-					if(!dataEntriesToAdd.contains(s.toString()))
+					if(!dataEntriesToAdd.contains(newDataEntry))
 					{
-						dataEntriesToAdd.add(s.toString());
+						dataEntriesToAdd.add(newDataEntry);
 					}
 
 					LocalDate newStartDate = endDateInput.plusDays(1);
-					StringBuilder s1 = new StringBuilder();
-					s1.append(newStartDate.format(formatter)).append(",");
-					s1.append(data[1]).append(",");
-					s1.append(data[2]).append(",");
-					s1.append(data[3]).append(",");
-					if(!dataEntriesToAdd.contains(s1.toString()))
+					String modifiedDataEntry = createDataEntry(newStartDate, LocalDate.parse(data[1], formatter), data[2], Double.parseDouble(data[3]), formatter);
+					if(!dataEntriesToAdd.contains(modifiedDataEntry))
 					{
-						dataEntriesToAdd.add(s1.toString());
+						dataEntriesToAdd.add(modifiedDataEntry);
 					}
 					if(checkIfDatesIntersectWithEachOther(startDateInput, endDateInput, data))
 					{
 						dataEntriesToAdd.remove(dataEntry);
 					}
 				}
-				else if(checkIfStartDateAndEndDateAreAfter(isoCodeInput, startDateInput, endDateInput, data))
+				else if(checkIfStartDateAndEndDateAreAfter(startDateInput, endDateInput, isoCodeInput, data))
 				{
-					if(!dataEntriesToAdd.contains(s.toString()))
+					if(!dataEntriesToAdd.contains(newDataEntry))
 					{
-						dataEntriesToAdd.add(s.toString());
+						dataEntriesToAdd.add(newDataEntry);
 					}
 
 					LocalDate newEndDate = startDateInput.minusDays(1);
-					StringBuilder s1 = new StringBuilder();
-					s1.append(data[0]).append(",");
-					s1.append(newEndDate.format(formatter)).append(",");
-					s1.append(data[2]).append(",");
-					s1.append(data[3]).append(",");
-					if(!dataEntriesToAdd.contains(s1.toString()))
+					String modifiedDataEntry = createDataEntry(LocalDate.parse(data[0], formatter), newEndDate, data[2], Double.parseDouble(data[3]), formatter);
+					if(!dataEntriesToAdd.contains(modifiedDataEntry))
 					{
-						dataEntriesToAdd.add(s1.toString());
+						dataEntriesToAdd.add(modifiedDataEntry);
 					}
 					if(checkIfDatesIntersectWithEachOther(startDateInput, endDateInput, data))
 					{
 						dataEntriesToAdd.remove(dataEntry);
 					}
 				}
-				else if(checkIfStartDateIsAfterAndEndDateIsBefore(isoCodeInput, startDateInput, endDateInput, data))
+				else if(checkIfStartDateIsAfterAndEndDateIsBefore(startDateInput, endDateInput, isoCodeInput, data))
 				{
-					if(!dataEntriesToAdd.contains(s.toString()))
+					if(!dataEntriesToAdd.contains(newDataEntry))
 					{
-						dataEntriesToAdd.add(s.toString());
+						dataEntriesToAdd.add(newDataEntry);
 					}
 
 					LocalDate newEndDate = startDateInput.minusDays(1);
-					StringBuilder s1 = new StringBuilder();
-					s1.append(data[0]).append(",");
-					s1.append(newEndDate.format(formatter)).append(",");
-					s1.append(data[2]).append(",");
-					s1.append(data[3]).append(",");
-					if(!dataEntriesToAdd.contains(s1.toString()))
+					String modifiedDataEntry = createDataEntry(LocalDate.parse(data[0], formatter), newEndDate, data[2], Double.parseDouble(data[3]), formatter);
+					if(!dataEntriesToAdd.contains(modifiedDataEntry))
 					{
-						dataEntriesToAdd.add(s1.toString());
+						dataEntriesToAdd.add(modifiedDataEntry);
 					}
 					dataEntriesToAdd.remove(dataEntry);
 				}
-				else if(checkIfStartDateIsBeforeAndEndDateIsAfter(isoCodeInput, startDateInput, endDateInput, data))
+				else if(checkIfStartDateIsBeforeAndEndDateIsAfter(startDateInput, endDateInput, isoCodeInput, data))
 				{
 					dataEntriesToAdd.remove(dataEntry);
-					if(!dataEntriesToAdd.contains(s.toString()))
+					if(!dataEntriesToAdd.contains(newDataEntry))
 					{
-						dataEntriesToAdd.add(s.toString());
+						dataEntriesToAdd.add(newDataEntry);
 					}
 				}
 			}
@@ -388,7 +374,7 @@ public class IataExchangeRateApplication {
 		}
 	}
 
-	public boolean checkIfStartDateAndEndDateAreEqual(String isoCodeInput, LocalDate startDateInput, LocalDate endDateInput, String[] data)
+	public boolean checkIfStartDateAndEndDateAreEqual(LocalDate startDateInput, LocalDate endDateInput, String isoCodeInput, String[] data)
 	{
 		try
 		{
@@ -407,7 +393,7 @@ public class IataExchangeRateApplication {
 		}
 	}
 
-	public boolean checkIfStartDateIsEqualAndEndDateIsAfter(String isoCodeInput, LocalDate startDateInput, LocalDate endDateInput, String[] data)
+	public boolean checkIfStartDateIsEqualAndEndDateIsAfter(LocalDate startDateInput, LocalDate endDateInput, String isoCodeInput, String[] data)
 	{
 		try
 		{
@@ -426,7 +412,7 @@ public class IataExchangeRateApplication {
 		}
 	}
 
-	public boolean checkIfStartDateIsEqualAndEndDateIsBefore(String isoCodeInput, LocalDate startDateInput, LocalDate endDateInput, String[] data)
+	public boolean checkIfStartDateIsEqualAndEndDateIsBefore(LocalDate startDateInput, LocalDate endDateInput, String isoCodeInput, String[] data)
 	{
 		try
 		{
@@ -445,7 +431,7 @@ public class IataExchangeRateApplication {
 		}
 	}
 
-	public boolean checkIfStartDateIsAfterAndEndDateIsEqual(String isoCodeInput, LocalDate startDateInput, LocalDate endDateInput, String[] data)
+	public boolean checkIfStartDateIsAfterAndEndDateIsEqual(LocalDate startDateInput, LocalDate endDateInput, String isoCodeInput, String[] data)
 	{
 		try
 		{
@@ -464,7 +450,7 @@ public class IataExchangeRateApplication {
 		}
 	}
 
-	public boolean checkIfStartDateIsBeforeAndEndDateIsEqual(String isoCodeInput, LocalDate startDateInput, LocalDate endDateInput, String[] data)
+	public boolean checkIfStartDateIsBeforeAndEndDateIsEqual(LocalDate startDateInput, LocalDate endDateInput, String isoCodeInput, String[] data)
 	{
 		try
 		{
@@ -483,7 +469,7 @@ public class IataExchangeRateApplication {
 		}
 	}
 
-	public boolean checkIfStartDateAndEndDateAreBefore(String isoCodeInput, LocalDate startDateInput, LocalDate endDateInput, String[] data)
+	public boolean checkIfStartDateAndEndDateAreBefore(LocalDate startDateInput, LocalDate endDateInput, String isoCodeInput, String[] data)
 	{
 		try
 		{
@@ -502,7 +488,7 @@ public class IataExchangeRateApplication {
 		}
 	}
 
-	public boolean checkIfStartDateAndEndDateAreAfter(String isoCodeInput, LocalDate startDateInput, LocalDate endDateInput, String[] data)
+	public boolean checkIfStartDateAndEndDateAreAfter(LocalDate startDateInput, LocalDate endDateInput, String isoCodeInput, String[] data)
 	{
 		try
 		{
@@ -521,7 +507,7 @@ public class IataExchangeRateApplication {
 		}
 	}
 
-	public boolean checkIfStartDateIsAfterAndEndDateIsBefore(String isoCodeInput, LocalDate startDateInput, LocalDate endDateInput, String[] data)
+	public boolean checkIfStartDateIsAfterAndEndDateIsBefore(LocalDate startDateInput, LocalDate endDateInput, String isoCodeInput, String[] data)
 	{
 		try
 		{
@@ -540,7 +526,7 @@ public class IataExchangeRateApplication {
 		}
 	}
 
-	public boolean checkIfStartDateIsBeforeAndEndDateIsAfter(String isoCodeInput, LocalDate startDateInput, LocalDate endDateInput, String[] data)
+	public boolean checkIfStartDateIsBeforeAndEndDateIsAfter(LocalDate startDateInput, LocalDate endDateInput, String isoCodeInput, String[] data)
 	{
 		try
 		{
@@ -610,31 +596,22 @@ public class IataExchangeRateApplication {
 			{
 				try
 				{
-					String[] exchangeRatesData = line.split(csvSplitBy);
+					String[] data = line.split(csvSplitBy);
+					data[1] = data[1].replace(',', '.');
 
-					LocalDate.parse(exchangeRatesData[4], formatter);
-					LocalDate.parse(exchangeRatesData[3], formatter);
-
-					String exchangeRatesDataWithNewFormat = "";
-					exchangeRatesData[1] = exchangeRatesData[1].replace(',', '.');
-
-					if(exchangeRatesData.length == 6)
+					if(data.length == 6)
 					{
 						continue;
 					}
 					else
 					{
-						StringBuilder s = new StringBuilder();
-						s.append(exchangeRatesData[3]).append(",");
-						s.append(exchangeRatesData[4]).append(",");
-						s.append(exchangeRatesData[2]).append(",");
-						s.append(exchangeRatesData[1]).append(",");
-						tempDataEntries.add(s.toString());
+						String dataEntry = createDataEntry(LocalDate.parse(data[3], formatter), LocalDate.parse(data[4], formatter), data[2], Double.parseDouble(data[1]), formatter);
+						tempDataEntries.add(dataEntry);
 					}
 				}
 				catch(Exception e)
 				{
-					continue;
+					e.printStackTrace();
 				}
 			}
 
@@ -667,7 +644,7 @@ public class IataExchangeRateApplication {
 		System.out.println();
 	}
 
-	public boolean checkIfInputForDisplayingIataExchangeRatesIsValid(String isoCodeInput, LocalDate dateInput, String[] data)
+	public boolean checkIfInputForDisplayingIataExchangeRatesIsValid(LocalDate dateInput, String isoCodeInput, String[] data)
 	{
 		try
 		{
