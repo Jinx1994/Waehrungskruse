@@ -159,7 +159,7 @@ public class IataExchangeRateApplication {
 		StringBuilder dataEntry = new StringBuilder();
 		dataEntry.append(startDateInput.format(formatter)).append(",");
 		dataEntry.append(endDateInput.format(formatter)).append(",");
-		dataEntry.append(isoCodeInput).append(",");
+		dataEntry.append(isoCodeInput.toUpperCase()).append(",");
 		dataEntry.append(exchangeRateInput).append(",");
 		return dataEntry.toString();
 	}
@@ -184,7 +184,7 @@ public class IataExchangeRateApplication {
 			}
 
 			if(!checkIfStartDateIsBeforeOrEqualEndDate(startDateInput, endDateInput)
-			|| dataEntriesToAdd.size() == 0)
+			|| isoCodeInput.length() != 3)
 			{
 				return false;
 			}
@@ -192,6 +192,11 @@ public class IataExchangeRateApplication {
 			printDataEntries((dataEntriesToRemove));
 
 			String newDataEntry = createDataEntry(startDateInput, endDateInput, isoCodeInput, exchangeRateInput, formatter);
+
+			if(dataEntriesToAdd.size() == 0)
+			{
+				dataEntriesToAdd.add(newDataEntry);
+			}
 
 			for(String dataEntry: dataEntriesToRemove)
 			{
